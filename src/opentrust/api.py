@@ -1,0 +1,87 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Optional
+
+from .models import Identity, Endorsement, TrustGraph
+from .trust import compute_trust_scores
+
+app = FastAPI(title="OpenTrust ID", description="Federated identity via trust graph endorsements")
+
+# In-memory graph (single instance for simplicity)
+graph = TrustGraph()
+
+
+# --- Request schemas ---
+
+class IdentityCreate(BaseModel):
+    name: str
+    metadata: dict = {}
+
+
+class EndorsementCreate(BaseModel):
+    endorser_id: str
+    endorsee_id: str
+    weight: float = 1.0
+    note: Optional[str] = None
+
+
+# --- Identity endpoints ---
+
+@app.post("/identities", response_model=Identity, status_code=201)
+def create_identity(body: IdentityCreate):
+    identity = Identity(name=body.name, metadata=body.metadata)
+    return graph.add_identity(identity)
+
+
+@app.get("/identities", response_model=list[Identity])
+def list_identities():
+    return list(graph.identities.values())
+
+
+@app.get("/identities/{identity_id}", response_model=Identity)
+def get_identity(identity_id: str):
+    if identity_id not in graph.identities:
+        raise HTTPException(status_code=404, detail="Identity not found")
+    return graph.identities[identity_id]
+
+
+@app.delete("/identities/{identity_id}", status_code=204)
+def delete_identity(identity_id: str):
+    if identity_id not in graph.identities:
+        raise HTTPException(status_code=404, detail="Identity not found")
+    del graph.identities[identity_id]
+    graph.endorsements[:] = [
+        e for e in graph.endorsements
+        if e.endorser_id != identity_id and e.endorsee_id != identity_id
+    ]
+
+
+# --- Endorsement endpoints ---
+
+@app.post("/endorsements", response_model=Endorsement, status_code=201)
+def create_endorsement(body: EndorsementCreate):
+    try:
+        endorsement = Endorsement(**body.model_dump())
+        return graph.add_endorsement(endorsement)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/endorsements", response_model=list[Endorsement])
+def list_endorsements():
+    return graph.endorsements
+
+
+# --- Trust score endpoints ---
+
+@app.get("/trust-scores")
+def get_trust_scores() -> dict[str, float]:
+    return compute_trust_scores(graph)
+
+
+@app.get("/trust-scores/{identity_id}")
+def get_trust_score(identity_id: str) -> dict:
+    if identity_id not in graph.identities:
+        raise HTTPException(status_code=404, detail="Identity not found")
+    scores = compute_trust_scores(graph)
+    return {"identity_id": identity_id, "score": scores.get(identity_id, 0.0)}
