@@ -1,10 +1,22 @@
 # FederatedIdentityProtocol
 
+[![CI](https://github.com/OpenTrustID/FederatedIdentityProtocol/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenTrustID/FederatedIdentityProtocol/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 OpenTrust ID is a federated identity protocol that replaces traditional KYC systems with a trust-based identity model. Inspired by the trust graph principles of Stellar, users establish identity through endorsements from trusted participants, forming a decentralized web of credibility.
 
 Instead of relying on centralized institutions, identity emerges organically from the network: "you are trusted because trusted entities trust you." This approach enhances privacy, reduces barriers to entry, and enables inclusive access to financial services.
 
 Identity scores can be used to guide funding decisions, reputation systems, and access to opportunities—creating a powerful foundation for decentralized ecosystems and public goods coordination.
+
+## Status
+
+Early-stage and actively developed. The core protocol (identities, endorsements, PageRank-style
+trust scoring) and REST API are implemented and tested; see [CHANGELOG.md](CHANGELOG.md) for
+recent changes and [CONTRIBUTING.md](CONTRIBUTING.md) to get involved. This project is released
+under the [MIT license](LICENSE) and intended as public goods infrastructure — decentralized
+trust and reputation primitives that any application can build on without relying on a
+centralized identity provider.
 
 ## How it works
 
@@ -18,10 +30,14 @@ Identity scores can be used to guide funding decisions, reputation systems, and 
 src/opentrust/
   models.py   # Identity, Endorsement, TrustGraph data models
   trust.py    # PageRank trust score algorithm
+  config.py   # Environment-based runtime configuration
   api.py      # FastAPI REST API
 main.py       # Server entry point
 tests/
   test_opentrust.py
+Dockerfile    # Container build
+.github/
+  workflows/ci.yml  # Test + lint pipeline
 ```
 
 ## Installation
@@ -111,3 +127,12 @@ docker run -p 8000:8000 opentrust-id
 ```bash
 pytest tests/ -v
 ```
+
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the development
+workflow and design principles.
+
+## License
+
+[MIT](LICENSE)
