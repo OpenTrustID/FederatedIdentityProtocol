@@ -43,6 +43,26 @@ def test_trust_graph_unknown_endorser():
         g.add_endorsement(Endorsement(endorser_id="unknown", endorsee_id=alice.id))
 
 
+def test_re_endorsement_updates_existing_edge():
+    g = TrustGraph()
+    alice = g.add_identity(Identity(name="Alice"))
+    bob = g.add_identity(Identity(name="Bob"))
+    g.add_endorsement(Endorsement(endorser_id=alice.id, endorsee_id=bob.id, weight=0.3))
+    g.add_endorsement(Endorsement(endorser_id=alice.id, endorsee_id=bob.id, weight=0.9))
+    assert len(g.endorsements) == 1
+    assert g.endorsements[0].weight == 0.9
+
+
+def test_remove_endorsement():
+    g = TrustGraph()
+    alice = g.add_identity(Identity(name="Alice"))
+    bob = g.add_identity(Identity(name="Bob"))
+    e = g.add_endorsement(Endorsement(endorser_id=alice.id, endorsee_id=bob.id))
+    assert g.remove_endorsement(e.id) is True
+    assert g.endorsements == []
+    assert g.remove_endorsement(e.id) is False
+
+
 # --- Trust score tests ---
 
 def test_trust_scores_empty_graph():

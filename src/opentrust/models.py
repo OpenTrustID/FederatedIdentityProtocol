@@ -36,8 +36,26 @@ class TrustGraph(BaseModel):
             raise ValueError(f"Endorsee {endorsement.endorsee_id} not found")
         if endorsement.endorser_id == endorsement.endorsee_id:
             raise ValueError("Cannot endorse yourself")
+
+        # An endorser may only have one active endorsement of a given endorsee.
+        # Re-endorsing updates the existing edge instead of stacking duplicates,
+        # which would otherwise let a single relationship inflate trust scores.
+        for existing in self.endorsements:
+            if existing.endorser_id == endorsement.endorser_id and existing.endorsee_id == endorsement.endorsee_id:
+                existing.weight = endorsement.weight
+                existing.note = endorsement.note
+                existing.created_at = endorsement.created_at
+                return existing
+
         self.endorsements.append(endorsement)
         return endorsement
+
+    def remove_endorsement(self, endorsement_id: str) -> bool:
+        for i, e in enumerate(self.endorsements):
+            if e.id == endorsement_id:
+                del self.endorsements[i]
+                return True
+        return False
 
     def get_endorsements_for(self, identity_id: str) -> list[Endorsement]:
         return [e for e in self.endorsements if e.endorsee_id == identity_id]
