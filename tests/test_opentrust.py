@@ -141,6 +141,20 @@ def test_create_endorsement():
     assert r.json()["endorser_id"] == alice["id"]
 
 
+def test_delete_endorsement():
+    alice = client.post("/identities", json={"name": "Alice"}).json()
+    bob = client.post("/identities", json={"name": "Bob"}).json()
+    e = client.post("/endorsements", json={"endorser_id": alice["id"], "endorsee_id": bob["id"]}).json()
+    r = client.delete(f"/endorsements/{e['id']}")
+    assert r.status_code == 204
+    assert len(graph.endorsements) == 0
+
+
+def test_delete_endorsement_not_found():
+    r = client.delete("/endorsements/nonexistent")
+    assert r.status_code == 404
+
+
 def test_create_endorsement_self():
     alice = client.post("/identities", json={"name": "Alice"}).json()
     r = client.post("/endorsements", json={"endorser_id": alice["id"], "endorsee_id": alice["id"]})

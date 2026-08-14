@@ -72,6 +72,12 @@ def list_endorsements():
     return graph.endorsements
 
 
+@app.delete("/endorsements/{endorsement_id}", status_code=204)
+def delete_endorsement(endorsement_id: str):
+    if not graph.remove_endorsement(endorsement_id):
+        raise HTTPException(status_code=404, detail="Endorsement not found")
+
+
 # --- Trust score endpoints ---
 
 @app.get("/trust-scores")

@@ -53,8 +53,9 @@ python main.py
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/endorsements` | Create an endorsement |
+| `POST` | `/endorsements` | Create an endorsement (re-endorsing the same pair updates the existing edge) |
 | `GET` | `/endorsements` | List all endorsements |
+| `DELETE` | `/endorsements/{id}` | Revoke an endorsement |
 
 ### Trust scores
 
