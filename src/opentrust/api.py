@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -6,6 +8,8 @@ from typing import Optional
 from .config import settings
 from .models import Identity, Endorsement, TrustGraph
 from .trust import compute_trust_scores
+
+logger = logging.getLogger("opentrust")
 
 app = FastAPI(title="OpenTrust ID", description="Federated identity via trust graph endorsements")
 
@@ -49,7 +53,9 @@ class EndorsementCreate(BaseModel):
 @app.post("/identities", response_model=Identity, status_code=201)
 def create_identity(body: IdentityCreate):
     identity = Identity(name=body.name, metadata=body.metadata)
-    return graph.add_identity(identity)
+    graph.add_identity(identity)
+    logger.info("identity created id=%s name=%r", identity.id, identity.name)
+    return identity
 
 
 @app.get("/identities", response_model=list[Identity])
@@ -73,6 +79,7 @@ def delete_identity(identity_id: str):
         e for e in graph.endorsements
         if e.endorser_id != identity_id and e.endorsee_id != identity_id
     ]
+    logger.info("identity deleted id=%s", identity_id)
 
 
 @app.get("/identities/{identity_id}/endorsers", response_model=list[Endorsement])
@@ -97,7 +104,12 @@ def get_endorsees(identity_id: str):
 def create_endorsement(body: EndorsementCreate):
     try:
         endorsement = Endorsement(**body.model_dump())
-        return graph.add_endorsement(endorsement)
+        endorsement = graph.add_endorsement(endorsement)
+        logger.info(
+            "endorsement recorded endorser=%s endorsee=%s weight=%.2f",
+            endorsement.endorser_id, endorsement.endorsee_id, endorsement.weight,
+        )
+        return endorsement
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

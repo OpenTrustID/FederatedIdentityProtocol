@@ -38,6 +38,15 @@ python main.py
 # Interactive docs at http://localhost:8000/docs
 ```
 
+Configuration is via environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OPENTRUST_HOST` | `0.0.0.0` | Bind address |
+| `OPENTRUST_PORT` | `8000` | Bind port |
+| `OPENTRUST_LOG_LEVEL` | `info` | Uvicorn log level |
+| `OPENTRUST_CORS_ORIGINS` | `*` | Comma-separated allowed CORS origins |
+
 ## API
 
 ### Health
