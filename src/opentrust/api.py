@@ -56,6 +56,22 @@ def delete_identity(identity_id: str):
     ]
 
 
+@app.get("/identities/{identity_id}/endorsers", response_model=list[Endorsement])
+def get_endorsers(identity_id: str):
+    """Endorsements received by this identity (who vouches for them)."""
+    if identity_id not in graph.identities:
+        raise HTTPException(status_code=404, detail="Identity not found")
+    return graph.get_endorsements_for(identity_id)
+
+
+@app.get("/identities/{identity_id}/endorsees", response_model=list[Endorsement])
+def get_endorsees(identity_id: str):
+    """Endorsements given by this identity (who they vouch for)."""
+    if identity_id not in graph.identities:
+        raise HTTPException(status_code=404, detail="Identity not found")
+    return graph.get_endorsements_by(identity_id)
+
+
 # --- Endorsement endpoints ---
 
 @app.post("/endorsements", response_model=Endorsement, status_code=201)

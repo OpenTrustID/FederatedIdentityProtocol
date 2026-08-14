@@ -48,6 +48,8 @@ python main.py
 | `GET` | `/identities` | List all identities |
 | `GET` | `/identities/{id}` | Get an identity |
 | `DELETE` | `/identities/{id}` | Remove an identity |
+| `GET` | `/identities/{id}/endorsers` | List endorsements received by this identity |
+| `GET` | `/identities/{id}/endorsees` | List endorsements given by this identity |
 
 ### Endorsements
 
