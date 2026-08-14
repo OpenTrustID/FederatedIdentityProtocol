@@ -99,6 +99,13 @@ curl -s -X POST http://localhost:8000/endorsements -H 'Content-Type: application
 curl http://localhost:8000/trust-scores
 ```
 
+## Running with Docker
+
+```bash
+docker build -t opentrust-id .
+docker run -p 8000:8000 opentrust-id
+```
+
 ## Running tests
 
 ```bash
