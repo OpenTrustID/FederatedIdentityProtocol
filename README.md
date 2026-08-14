@@ -40,6 +40,12 @@ python main.py
 
 ## API
 
+### Health
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Liveness check and graph size |
+
 ### Identities
 
 | Method | Path | Description |

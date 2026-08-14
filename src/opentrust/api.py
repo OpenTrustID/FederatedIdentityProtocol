@@ -1,14 +1,33 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
+from .config import settings
 from .models import Identity, Endorsement, TrustGraph
 from .trust import compute_trust_scores
 
 app = FastAPI(title="OpenTrust ID", description="Federated identity via trust graph endorsements")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # In-memory graph (single instance for simplicity)
 graph = TrustGraph()
+
+
+@app.get("/health")
+def health() -> dict:
+    return {
+        "status": "ok",
+        "identities": len(graph.identities),
+        "endorsements": len(graph.endorsements),
+    }
 
 
 # --- Request schemas ---

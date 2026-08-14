@@ -101,6 +101,12 @@ def test_trust_scores_normalized():
 
 # --- API tests ---
 
+def test_health():
+    r = client.get("/health")
+    assert r.status_code == 200
+    assert r.json()["status"] == "ok"
+
+
 def test_create_and_get_identity():
     r = client.post("/identities", json={"name": "Alice"})
     assert r.status_code == 201
