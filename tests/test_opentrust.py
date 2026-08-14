@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from opentrust.api import app, graph
-from opentrust.models import Identity, Endorsement, TrustGraph
+from opentrust.models import Endorsement, Identity, TrustGraph
 from opentrust.trust import compute_trust_scores
 
 

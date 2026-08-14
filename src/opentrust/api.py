@@ -1,12 +1,12 @@
 import logging
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
 
 from .config import settings
-from .models import Identity, Endorsement, TrustGraph
+from .models import Endorsement, Identity, TrustGraph
 from .trust import compute_trust_scores
 
 logger = logging.getLogger("opentrust")
